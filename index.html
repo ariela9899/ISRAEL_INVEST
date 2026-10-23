@@ -177,9 +177,78 @@
   .foot { color: var(--fg-muted); font-size: 0.82rem; text-align: center; }
 
   a { color: var(--accent); }
+
+  .theme-toggle {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: calc(16px + env(safe-area-inset-left, 0px));
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-toggle svg { width: 18px; height: 18px; display: none; }
 </style>
 
 <div class="page">
+
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="החלפת מצב תצוגה">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+  <script>
+    (function () {
+      function getStored() { try { return localStorage.getItem('theme'); } catch (e) { return null; } }
+      function setStored(v) { try { localStorage.setItem('theme', v); } catch (e) {} }
+      function systemDark() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+      function effective(v) { return (v === 'dark' || v === 'light') ? v : (systemDark() ? 'dark' : 'light'); }
+      var btn = document.getElementById('theme-toggle');
+      function paint(v) {
+        var eff = effective(v);
+        if (v === 'dark' || v === 'light') { document.documentElement.setAttribute('data-theme', v); }
+        else { document.documentElement.removeAttribute('data-theme'); }
+        if (btn) {
+          btn.setAttribute('aria-pressed', eff === 'dark' ? 'true' : 'false');
+          btn.setAttribute('aria-label', eff === 'dark' ? 'מעבר למצב בהיר' : 'מעבר למצב כהה');
+          var sun = btn.querySelector('.icon-sun');
+          var moon = btn.querySelector('.icon-moon');
+          if (sun) sun.style.display = eff === 'dark' ? 'none' : 'block';
+          if (moon) moon.style.display = eff === 'dark' ? 'block' : 'none';
+        }
+      }
+      var stored = getStored();
+      paint(stored);
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var next = effective(getStored()) === 'dark' ? 'light' : 'dark';
+          setStored(next);
+          paint(next);
+        });
+      }
+    })();
+  </script>
 
   <header class="masthead" id="top">
     <div class="eyebrow">מדריך למשקיע העצמאי · עודכן אוקטובר 2026</div>
@@ -212,28 +281,28 @@
             <td>5,000 ₪</td>
             <td>4.65 ₪</td>
             <td>5$</td>
-            <td>15 ₪ (עד 180 ₪ בשנה)</td>
+            <td>15 ₪, מקוזז מול עמלות מסחר (עד 180 ₪ בשנה)</td>
             <td>השקעה בניירות ערך ישראליים וקרנות כספיות ללא עמלת קנייה/מכירה</td>
           </tr>
           <tr>
             <td>אקסלנס טרייד</td>
-            <td>10,000 ₪</td>
+            <td>10,000 ₪ (רשמי), מ-4,500 ₪ בקישור ההטבה</td>
             <td>3 ₪</td>
             <td>6$</td>
-            <td>15 ₪ (פטור ל-3 שנים במבצע הנוכחי)</td>
+            <td>15 ₪ — בהטבת הצטרפות נוכחית (לזמן מוגבל): פטור לכל החיים</td>
             <td>ניירות ערך ישראליים, ולקוחות הפניקס שרוצים לרכז השקעות וחיסכון במקום אחד</td>
           </tr>
           <tr>
             <td>אינטראקטיב ישראל</td>
             <td>אין מינימום רשמי</td>
-            <td>כ-1 סנט למניה (מינ' 2.5$)</td>
-            <td>כ-1 סנט למניה (מינ' 2.5$)</td>
+            <td>לא קיים — אין מסחר בבורסה בת"א</td>
+            <td>2.50$ לעסקה (מינימום; החישוב הבסיסי הוא 1 סנט למניה)</td>
             <td>אין</td>
             <td>סוחר מנוסה שרוצה מגוון עולמי ועמלות נמוכות</td>
           </tr>
           <tr>
             <td>בלינק</td>
-            <td>אין מינימום (אפשר מ-1$)</td>
+            <td>אין מינימום</td>
             <td>— (אין מסחר בת"א)</td>
             <td>ללא עמלה עד 10 פעולות בחודש</td>
             <td>אין</td>
@@ -242,7 +311,7 @@
         </tbody>
       </table>
     </div>
-    <p class="table-note">הנתונים מבוססים על פרסומי החברות ואתרי השוואה פיננסיים ועשויים להשתנות — מומלץ לאמת מול כל גוף לפני פתיחת חשבון.</p>
+    <p class="table-note">דמי הטיפול החודשיים במיטב טרייד ובאקסלנס טרייד מתקזזים מול עמלות המסחר שבוצעו באותו חודש — משלמים אותם בפועל רק אם סכום העמלות החודשי נמוך מהם. הנתונים מבוססים על פרסומי החברות ואתרי השוואה פיננסיים ועשויים להשתנות — מומלץ לאמת מול כל גוף לפני פתיחת חשבון.</p>
   </section>
 
   <section class="platforms" aria-label="פירוט הפלטפורמות">
@@ -271,7 +340,7 @@
           <h4>חסרונות</h4>
           <ul>
             <li><span class="mark">✕</span><span>עמלת המינימום למסחר בארץ (4.65 ₪) גבוהה יחסית לחלק מהמתחרים.</span></li>
-            <li><span class="mark">✕</span><span>דמי טיפול חודשיים (15 ₪) נגבים גם בלי שום פעילות בחשבון.</span></li>
+            <li><span class="mark">✕</span><span>דמי טיפול חודשיים (15 ₪) מתקזזים מול עמלות המסחר באותו חודש — משלמים אותם בפועל רק אם העמלות החודשיות נמוכות מ-15 ₪.</span></li>
             <li><span class="mark">✕</span><span>עמלת המרת מט"ח לא תמיד מפורטת בפרסום — כדאי לשאול עליה מראש.</span></li>
             <li><span class="mark">✕</span><span>פחות משתלמת למי שמפקיד סכומים קטנים או סוחר לעיתים רחוקות.</span></li>
           </ul>
@@ -297,19 +366,16 @@
         <div class="pros">
           <h4>יתרונות</h4>
           <ul>
-            <li><span class="mark">✓</span><span>מבצע הצטרפות נוכחי כולל החזר עמלות, ובהפקדה גבוהה מספיק הפטור מדמי הטיפול עשוי להיות ללא הגבלת זמן ולא רק לכמה שנים.</span></li>
+            <li><span class="mark">✓</span><span>הטבת הצטרפות נוכחית לזמן מוגבל: פתיחת חשבון מזכה בפטור מדמי הטיפול לכל החיים, ולא רק לכמה שנים.</span></li>
             <li><span class="mark">✓</span><span>עמלת מינימום למסחר בארץ נמוכה מזו של מיטב טרייד (3 ₪ לעומת 4.65 ₪ לפעולה).</span></li>
             <li><span class="mark">✓</span><span>מערכת מסחר מתקדמת (Extrade Pro) עם כלים לסוחר פעיל.</span></li>
-            <li><span class="mark">✓</span><span>העברת תיק קיים מגוף אחר אינה יוצרת אירוע מס.</span></li>
           </ul>
         </div>
         <div class="cons">
           <h4>חסרונות</h4>
           <ul>
-            <li><span class="mark">✕</span><span>סף כניסה גבוה יחסית — מינימום הפקדה של 10,000 ₪.</span></li>
-            <li><span class="mark">✕</span><span>תנאי הפטור מדמי הטיפול תלויים בגובה ההפקדה ובמועד ההצטרפות, והמקורות השונים אינם תמיד עקביים ביניהם — חשוב לאמת את התנאי המדויק מול אקסלנס לפני ההצטרפות.</span></li>
-            <li><span class="mark">✕</span><span>במבט על העלות הכוללת לאורך זמן, היא לא תמיד הזולה ביותר בהשוואה.</span></li>
-            <li><span class="mark">✕</span><span>עמלות מט"ח ואי-פעילות לא תמיד גלויות מראש — לבדוק בשיחת הפתיחה.</span></li>
+            <li><span class="mark">✕</span><span>אם ההטבה לא חלה, דמי הטיפול (15 ₪ לחודש) מתקזזים מול עמלות המסחר באותו חודש — משלמים אותם בפועל רק אם העמלות החודשיות נמוכות מ-15 ₪.</span></li>
+            <li><span class="mark">✕</span><span>קנייה ומכירה של קרנות כספיות עולה 16 ₪ לפעולה — בניגוד למיטב טרייד, שבה פעולות אלו פטורות מעמלה.</span></li>
           </ul>
         </div>
       </div>
@@ -327,13 +393,13 @@
       <p class="desc">
         שירות המתווך בישראל גישה למערכות ולעמלות של אינטראקטיב ברוקרס העולמית. פועלת בישראל
         בפטור לפי סעיף 49א לחוק ניירות ערך, ולא בפיקוח ישיר של רשות ניירות ערך הישראלית — מתאימה
-        בעיקר לסוחר שמחפש עמלות נמוכות ומגוון מוצרים גלובלי.
+        בעיקר לסוחר שמחפש עמלות נמוכות ומגוון מוצרים גלובלי בבורסות זרות — אין בה מסחר בבורסה בתל אביב.
       </p>
       <div class="pros-cons">
         <div class="pros">
           <h4>יתרונות</h4>
           <ul>
-            <li><span class="mark">✓</span><span>עמלות נמוכות מאוד: כ-1 סנט למניה, מינימום 2.5$ לעסקה, בלי דמי ניהול או אחזקה.</span></li>
+            <li><span class="mark">✓</span><span>עמלות נמוכות מאוד בחו"ל: כ-1 סנט למניה עם רצפת מינימום של 2.5$ לעסקה, בלי דמי ניהול או אחזקה.</span></li>
             <li><span class="mark">✓</span><span>מגוון עצום של מוצרים — מניות, תעודות סל, אופציות, אג"ח וחוזים עתידיים.</span></li>
             <li><span class="mark">✓</span><span>גישה ישירה למסחר בבורסות מובילות בעולם, כולל שעות מסחר מורחבות.</span></li>
             <li><span class="mark">✓</span><span>ביטוח חשבון עד 500,000$ דרך SIPC, ושירות לקוחות בעברית.</span></li>
@@ -342,8 +408,8 @@
         <div class="cons">
           <h4>חסרונות</h4>
           <ul>
+            <li><span class="mark">✕</span><span>אין מסחר בבורסה בתל אביב — רק בבורסות זרות, בעיקר בארה"ב.</span></li>
             <li><span class="mark">✕</span><span>לא מפוקחת ישירות על ידי רשות ניירות ערך בישראל — פועלת במתווה פטור.</span></li>
-            <li><span class="mark">✕</span><span>בחשבונות מתחת ל-25,000$ יש הגבלה לשלוש עסקאות יומיות בשבוע.</span></li>
             <li><span class="mark">✕</span><span>עומק המוצרים והכלים דורש עקומת למידה — פחות מתאימה למי שמתחיל מאפס.</span></li>
             <li><span class="mark">✕</span><span>אפשר להפקיד רק מחשבון בנק על שם בעל החשבון עצמו.</span></li>
           </ul>
@@ -379,7 +445,7 @@
           <h4>חסרונות</h4>
           <ul>
             <li><span class="mark">✕</span><span>מסחר במניות ותעודות סל אמריקאיות בלבד — אין מסחר בבורסה הישראלית.</span></li>
-            <li><span class="mark">✕</span><span>ניתן להעביר ניירות ערך לברוקר אחר, אך בעמלה (לפי האתר הרשמי בעת הבדיקה: כ-8$ לכל נייר ערך) — מומלץ לבדוק תעריף עדכני מול בלינק לפני ההעברה.</span></li>
+            <li><span class="mark">✕</span><span>ניתן להעביר ניירות ערך לברוקר אחר, אך בעמלה של 0.1% משווי הניירות עם מינימום של 8$ — מומלץ לבדוק תעריף עדכני מול בלינק לפני ההעברה.</span></li>
             <li><span class="mark">✕</span><span>עמלת המרת מט"ח בין שקל לדולר, והמשתמש אינו שולט בשער הביצוע בפועל בהמרה — כדאי לבדוק את התנאים מראש.</span></li>
             <li><span class="mark">✕</span><span>חברה חדשה בשוק, עם פחות שנות פעילות מוכחת לעומת המתחרות.</span></li>
           </ul>
